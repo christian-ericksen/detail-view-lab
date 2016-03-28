@@ -2,17 +2,9 @@ package ly.generalassemb.drewmahrt.shoppinglistwithdetailview;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.TextUtils;
-import android.util.Log;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 /**
  * Created by drewmahrt on 12/28/15.
@@ -41,7 +33,16 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
                     COL_ITEM_PRICE + " TEXT, " +
                     COL_ITEM_TYPE + " TEXT )";
 
-    public ShoppingSQLiteOpenHelper(Context context) {
+    private static ShoppingSQLiteOpenHelper mInstance;
+
+    public static ShoppingSQLiteOpenHelper getmInstance(Context context) {
+        if (mInstance == null) {
+            mInstance = new ShoppingSQLiteOpenHelper(context.getApplicationContext());
+        }
+        return mInstance;
+    }
+
+    private ShoppingSQLiteOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -108,5 +109,29 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
                 null); // h. limit
 
         return cursor;
+    }
+
+    public String[] getDescriptionById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(SHOPPING_LIST_TABLE_NAME,
+                new String[] {COL_ITEM_NAME, COL_ITEM_DESCRIPTION, COL_ITEM_PRICE, COL_ITEM_TYPE},
+                COL_ID+" = ?",
+                new String[]{String.valueOf(id)},
+                null,
+                null,
+                null,
+                null);
+
+        cursor.moveToFirst();
+
+        String[] myFavoriteArray = new String[]{
+                cursor.getString(cursor.getColumnIndex(COL_ITEM_NAME)),//value 1,
+                cursor.getString(cursor.getColumnIndex(COL_ITEM_DESCRIPTION)),//value 2,
+                cursor.getString(cursor.getColumnIndex(COL_ITEM_PRICE)),//value 3,
+                cursor.getString(cursor.getColumnIndex(COL_ITEM_TYPE))//value 4
+        };
+
+        return myFavoriteArray;
     }
 }
